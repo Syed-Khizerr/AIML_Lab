@@ -1,0 +1,199 @@
+AI Algorithms – Python Implementations
+1. A* Search on Graph
+import heapq
+def astar_graph(graph, h, start, goal):
+    pq = [(h[start], 0, start, [start])]
+    while pq:
+        f, g, node, path = heapq.heappop(pq)
+        if node == goal:
+            print("Path:", path)
+            print("Cost:", g)
+            return
+        for n, w in graph[node]:
+            heapq.heappush(pq, (g+w+h[n], g+w, n, path+[n]))
+
+graph = {
+'A':[('B',1),('C',3)],
+'B':[('D',1)],
+'C':[('D',1)],
+'D':[]
+}
+h = {'A':3,'B':1,'C':1,'D':0}
+astar_graph(graph,h,'A','D')
+2. A* Algorithm for 8 Puzzle Problem
+import heapq
+def h(state, goal):
+    return sum(state[i] != goal[i] and state[i] != 0 for i in range(9))
+
+def puzzle(start, goal):
+    pq=[(h(start,goal),0,start,[start])]
+    visited=set()
+    while pq:
+        f,g,state,path=heapq.heappop(pq)
+        if state==goal:
+            print("Cost:",g)
+            print("Path:")
+            for p in path:
+                print(p)
+            return
+        visited.add(state)
+        i=state.index(0)
+        moves=[]
+        if i not in [0,1,2]: moves.append(i-3)
+        if i not in [6,7,8]: moves.append(i+3)
+        if i not in [0,3,6]: moves.append(i-1)
+        if i not in [2,5,8]: moves.append(i+1)
+        for m in moves:
+            new=list(state)
+            new[i],new[m]=new[m],new[i]
+            new=tuple(new)
+            if new not in visited:
+                heapq.heappush(pq,(g+1+h(new,goal),g+1,new,path+[new]))
+
+start=(1,2,3,4,0,5,6,7,8)
+goal=(1,2,3,4,5,6,7,8,0)
+puzzle(start,goal)
+3. A* Algorithm for Grid Path Finding
+import heapq
+def astar_grid(grid,start,goal):
+    pq=[(0,0,start,[start])]
+    r,c=len(grid),len(grid[0])
+    while pq:
+        f,g,(x,y),path=heapq.heappop(pq)
+        if (x,y)==goal:
+            print("Path:",path)
+            print("Cost:",g)
+            return
+        for dx,dy in [(0,1),(1,0),(0,-1),(-1,0)]:
+            nx,ny=x+dx,y+dy
+            if 0<=nx<r and 0<=ny<c and grid[nx][ny]==0:
+                h=abs(nx-goal[0])+abs(ny-goal[1])
+                heapq.heappush(pq,(g+1+h,g+1,(nx,ny),path+[(nx,ny)]))
+
+grid=[
+[0,0,0],
+[1,0,1],
+[0,0,0]
+]
+astar_grid(grid,(0,0),(2,2))
+4. Graph Coloring using Backtracking
+def is_safe(node, color, graph, colors, assignment):
+    for n in graph[node]:
+        if n in assignment and assignment[n] == color:
+            return False
+    return True
+
+def solve(graph, colors, assignment):
+    if len(assignment) == len(graph):
+        print("Solution:", assignment)
+        return True
+    node = [n for n in graph if n not in assignment][0]
+    for color in colors:
+        if is_safe(node, color, graph, colors, assignment):
+            assignment[node] = color
+            if solve(graph, colors, assignment):
+                return True
+            del assignment[node]
+
+graph = {
+'A':['B','C'],
+'B':['A','C','D'],
+'C':['A','B','D'],
+'D':['B','C']
+}
+colors = ['Red','Green','Blue']
+solve(graph, colors, {})
+5. Alpha-Beta Pruning Algorithm
+import math
+def alphabeta(depth,node,isMax,values,alpha,beta):
+    if depth==math.log2(len(values)):
+        return values[node]
+    if isMax:
+        best=-1000
+        for i in range(2):
+            val=alphabeta(depth+1,node*2+i,False,values,alpha,beta)
+            best=max(best,val)
+            alpha=max(alpha,best)
+            if beta<=alpha:
+                break
+        return best
+    else:
+        best=1000
+        for i in range(2):
+            val=alphabeta(depth+1,node*2+i,True,values,alpha,beta)
+            best=min(best,val)
+            beta=min(beta,best)
+            if beta<=alpha:
+                break
+        return best
+
+values=[3,5,6,9,1,2,0,-1]
+print("Optimal value:",alphabeta(0,0,True,values,-1000,1000))
+6. Minimax Algorithm
+import math
+def minimax(depth, node, isMax, values):
+    if depth == math.log2(len(values)):
+        return values[node]
+    if isMax:
+        return max(
+            minimax(depth+1, node*2, False, values),
+            minimax(depth+1, node*2+1, False, values)
+        )
+    else:
+        return min(
+            minimax(depth+1, node*2, True, values),
+            minimax(depth+1, node*2+1, True, values)
+        )
+
+values = [3,5,6,9,1,2,0,-1]
+print("Optimal value:", minimax(0,0,True,values))
+7. Water Jug Problem using BFS
+from collections import deque
+def water_jug(cap1, cap2, goal):
+    visited = set()
+    queue = deque([(0,0)])
+    while queue:
+        x,y = queue.popleft()
+        if (x,y) in visited:
+            continue
+        visited.add((x,y))
+        print((x,y))
+        if x == goal or y == goal:
+            print("Goal reached")
+            return
+        next_states = [
+            (cap1,y),
+            (x,cap2),
+            (0,y),
+            (x,0),
+        ]
+        transfer = min(x, cap2-y)
+        next_states.append((x-transfer, y+transfer))
+        transfer = min(y, cap1-x)
+        next_states.append((x+transfer, y-transfer))
+        for state in next_states:
+            if state not in visited:
+                queue.append(state)
+
+water_jug(4,3,2)
+8. Constraint Satisfaction Problem (Backtracking)
+def backtrack(a, vars, dom, cons):
+    if len(a) == len(vars): return a
+    v = [x for x in vars if x not in a][0]
+
+    for val in dom[v]:
+        if all(c(a, v, val) for c in cons):
+            a[v] = val
+            r = backtrack(a, vars, dom, cons)
+            if r: return r
+            del a[v]
+    return None
+
+def diff(a, v, val):
+    return all(val != x for x in a.values())
+
+vars = ['X1','X2','X3']
+dom = {'X1':[1,2,3],'X2':[1,2,3],'X3':[1,2,3]}
+sol = backtrack({}, vars, dom, [diff])
+
+print(sol if sol else "No solution")
