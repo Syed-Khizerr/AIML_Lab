@@ -1,0 +1,26 @@
+st = {}
+addr = 100
+
+while True:
+    print("\n1.Insert 2.Search 3.Display 4.Exit")
+    ch = input()
+
+    if ch == '1':
+        name = input("Name: ")
+        typ = input("Type: ")
+        if name not in st:
+            st[name] = (typ, addr)
+            addr += 1
+        else:
+            print("Exists")
+
+    elif ch == '2':
+        name = input("Search: ")
+        print(st.get(name, "Not Found"))
+
+    elif ch == '3':
+        for k,v in st.items():
+            print(k, v)
+
+    else:
+        break

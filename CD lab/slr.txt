@@ -1,0 +1,60 @@
+# Minimal SLR Parser (for grammar: E→E+T | T , T→id)
+
+action = {
+    (0, 'id'): ('s', 3),
+    (1, '+'): ('s', 4),
+    (1, '$'): ('acc',),
+    (2, '+'): ('r', 2),
+    (2, '$'): ('r', 2),
+    (3, '+'): ('r', 3),
+    (3, '$'): ('r', 3),
+    (4, 'id'): ('s', 3),
+    (5, '+'): ('r', 1),
+    (5, '$'): ('r', 1),
+}
+
+goto = {
+    (0, 'E'): 1,
+    (0, 'T'): 2,
+    (4, 'T'): 5,
+}
+
+productions = {
+    1: ('E', ['E', '+', 'T']),
+    2: ('E', ['T']),
+    3: ('T', ['id'])
+}
+
+def slr_parse(tokens):
+    stack = [0]
+    tokens.append('$')
+    i = 0
+
+    while True:
+        state = stack[-1]
+        token = tokens[i]
+
+        if (state, token) not in action:
+            return "Rejected"
+
+        act = action[(state, token)]
+
+        if act[0] == 's':  # shift
+            stack.append(token)
+            stack.append(act[1])
+            i += 1
+
+        elif act[0] == 'r':  # reduce
+            lhs, rhs = productions[act[1]]
+            for _ in range(2 * len(rhs)):
+                stack.pop()
+            state = stack[-1]
+            stack.append(lhs)
+            stack.append(goto[(state, lhs)])
+
+        elif act[0] == 'acc':
+            return "Accepted"
+
+# ---- INPUT ----
+inp = input("Enter string (use id,+): ").split()
+print(slr_parse(inp))

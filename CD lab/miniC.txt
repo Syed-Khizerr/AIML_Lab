@@ -1,0 +1,47 @@
+import re
+
+exp = input("Enter expr (a=b+c*d): ")
+
+# 1. Lexical Analysis
+tokens = re.findall(r'[a-zA-Z]+|\d+|[+\-*/=]', exp)
+print("Tokens:", tokens)
+
+# 2. Syntax (basic check)
+if '=' not in tokens:
+    print("Syntax Error"); exit()
+
+# 3. Semantic (basic)
+# (skip detailed checks for minimal version)
+
+# 4. TAC generation
+lhs, rhs = exp.split('=')
+stack, ops, temp = [], [], 1
+
+def apply():
+    global temp
+    b = stack.pop(); a = stack.pop(); op = ops.pop()
+    print(f"t{temp} = {a} {op} {b}")
+    stack.append(f"t{temp}")
+    temp += 1
+
+i = 0
+while i < len(rhs):
+    if rhs[i].isalnum():
+        stack.append(rhs[i])
+    elif rhs[i] in "+-*/":
+        while ops and (rhs[i] in "+-" or ops[-1] in "*/"):
+            apply()
+        ops.append(rhs[i])
+    i += 1
+
+while ops: apply()
+
+res = stack[-1]
+print(f"{lhs} = {res}")
+
+# 5. Optimization (very basic constant folding skipped)
+
+# 6. Assembly
+print("\nAssembly:")
+print(f"MOV R0, {res}")
+print(f"MOV {lhs}, R0")

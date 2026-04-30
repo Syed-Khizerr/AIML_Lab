@@ -1,0 +1,13 @@
+n = int(input("No. of TAC lines: "))
+tac = [input() for _ in range(n)]
+
+for line in tac:
+    p = line.split()
+    
+    if len(p) == 5:   # t1 = a + b
+        print(f"MOV R0, {p[2]}")
+        print(f"{p[3].upper()} R0, {p[4]}")
+        print(f"MOV {p[0]}, R0")
+        
+    elif len(p) == 3: # a = t1
+        print(f"MOV {p[0]}, {p[2]}")

@@ -1,0 +1,28 @@
+exp = input("Enter expr (a=b+c*d): ")
+lhs, rhs = exp.split('=')
+
+stack, ops, temp = [], [], 1
+
+def apply():
+    global temp
+    b = stack.pop()
+    a = stack.pop()
+    op = ops.pop()
+    print(f"t{temp} = {a} {op} {b}")
+    stack.append(f"t{temp}")
+    temp += 1
+
+i = 0
+while i < len(rhs):
+    if rhs[i].isalnum():
+        stack.append(rhs[i])
+    elif rhs[i] in "+-*/":
+        while ops and (rhs[i] in "+-" or ops[-1] in "*/"):
+            apply()
+        ops.append(rhs[i])
+    i += 1
+
+while ops:
+    apply()
+
+print(f"{lhs} = {stack[-1]}")

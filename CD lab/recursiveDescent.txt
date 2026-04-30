@@ -1,0 +1,43 @@
+s = input("Enter expr: ") + '$'
+i = 0
+
+def E():
+    T()
+    while s[i] == '+':
+        match('+')
+        T()
+
+def T():
+    F()
+    while s[i] == '*':
+        match('*')
+        F()
+
+def F():
+    if s[i].isalnum():
+        match(s[i])
+    elif s[i] == '(':
+        match('(')
+        E()
+        match(')')
+    else:
+        error()
+
+def match(c):
+    global i
+    if s[i] == c:
+        i += 1
+    else:
+        error()
+
+def error():
+    print("Rejected"); exit()
+
+try:
+    E()
+    if s[i] == '$':
+        print("Accepted")
+    else:
+        print("Rejected")
+except:
+    print("Rejected")
